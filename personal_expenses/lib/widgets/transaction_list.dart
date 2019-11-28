@@ -5,12 +5,14 @@ import '../models/transaction.dart';
 class TransactionList extends StatelessWidget {
   final List<Transaction> _transactions;
 
-  TransactionList(this._transactions);
+  final Function _deleteTx;
+
+  TransactionList(this._transactions, this._deleteTx);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
+      height: 400,
       child: _transactions.isEmpty
           ? Column(
               children: <Widget>[
@@ -36,6 +38,11 @@ class TransactionList extends StatelessWidget {
                   elevation: 5,
                   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
                   child: ListTile(
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      color: Theme.of(context).errorColor,
+                      onPressed: () => _deleteTx(_transactions[idx].id),
+                    ),
                     leading: CircleAvatar(
                       radius: 30,
                       child: Padding(
@@ -53,40 +60,6 @@ class TransactionList extends StatelessWidget {
                         DateFormat.yMMMd().format(_transactions[idx].date)),
                   ),
                 );
-                // var tx = _transactions[idx];
-                // return Card(
-                //   child: Row(
-                //     children: <Widget>[
-                //       Container(
-                //         padding: EdgeInsets.all(10),
-                //         decoration: BoxDecoration(
-                //             border: Border.all(
-                //                 color: Theme.of(context).primaryColor,
-                //                 width: 2)),
-                //         margin:
-                //             EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                //         child: Text(
-                //           '\$${tx.amount.toStringAsFixed(2)}',
-                //           style: TextStyle(
-                //               fontWeight: FontWeight.bold,
-                //               fontSize: 20,
-                //               color: Theme.of(context).primaryColor),
-                //         ),
-                //       ),
-                //       Column(
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: <Widget>[
-                //           Text(tx.title,
-                //               style: Theme.of(context).textTheme.title),
-                //           Text(
-                //             DateFormat().format(tx.date),
-                //             style: TextStyle(color: Colors.grey),
-                //           )
-                //         ],
-                //       )
-                //     ],
-                //   ),
-                // );
               },
               itemCount: _transactions.length,
               //children: _transactions.map((tx) {}).toList(),

@@ -21,12 +21,16 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
           primarySwatch: Colors.purple,
           accentColor: Colors.amber,
+          errorColor: Colors.red,
           fontFamily: 'Quicksand',
           textTheme: ThemeData.light().textTheme.copyWith(
-              title: TextStyle(
+                title: TextStyle(
                   fontFamily: 'OpenSans',
                   fontWeight: FontWeight.bold,
-                  fontSize: 18)),
+                  fontSize: 18,
+                ),
+                button: TextStyle(color: Colors.white),
+              ),
           appBarTheme: AppBarTheme(
               textTheme: ThemeData.light().textTheme.copyWith(
                     title: TextStyle(
@@ -52,26 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  final List<Transaction> _transactions = [
-    // Transaction(
-    //   id: 't1',
-    //   title: 'New Shoes',
-    //   amount: 69.99,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Weekly Groceries',
-    //   amount: 16.53,
-    //   date: DateTime.now(),
-    // ),
-  ];
+  final List<Transaction> _transactions = [];
 
-  void _addNewTransaction(String txTitle, double txAmount) {
+  void _addNewTransaction(String txTitle, double txAmount, DateTime date) {
     final newTx = Transaction(
         title: txTitle,
         amount: txAmount,
-        date: DateTime.now(),
+        date: date,
         id: DateTime.now().toString());
 
     setState(() {
@@ -89,6 +80,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         )
         .toList();
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tx) => tx.id == id);
+    });
   }
 
   @override
@@ -112,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Chart(_recentTransaction),
               ),
             ),
-            TransactionList(_transactions)
+            TransactionList(_transactions, _deleteTransaction)
           ],
         ),
       ),

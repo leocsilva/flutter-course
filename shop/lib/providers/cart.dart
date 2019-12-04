@@ -24,6 +24,20 @@ class Cart with ChangeNotifier {
     return _items.length;
   }
 
+  double get totalAmount {
+    double total = 0.0;
+    _items.forEach((item) {
+      total += item.product.price * item.quantity;
+    });
+
+    return total;
+  }
+
+  void removeItem(String cardItemId) {
+    _items.removeWhere((item) => item.id == cardItemId);
+    notifyListeners();
+  }
+
   void addItem(Product product) {
     CartItem item = _items.firstWhere((item) => item.product.id == product.id, orElse: () => null );
     if (item != null) {
@@ -31,6 +45,11 @@ class Cart with ChangeNotifier {
     } else {
       _items.add(CartItem(id: DateTime.now().toString(), product: product, quantity: 1));
     }
+    notifyListeners();
+  }
+
+  void clear() {
+    _items = [];
     notifyListeners();
   }
 }

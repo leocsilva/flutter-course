@@ -38,14 +38,30 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  void addItem(Product product) {
+  CartItem addItem(Product product) {
     CartItem item = _items.firstWhere((item) => item.product.id == product.id, orElse: () => null );
     if (item != null) {
       item.quantity += 1;
     } else {
-      _items.add(CartItem(id: DateTime.now().toString(), product: product, quantity: 1));
+      item = CartItem(id: DateTime.now().toString(), product: product, quantity: 1);
+      _items.add(item);
     }
     notifyListeners();
+    return item;
+  }
+
+  void removeSingleItem(String cartItemId) {
+    CartItem item = _items.firstWhere((item) => item.id == cartItemId, orElse: () => null);
+
+    if (item != null) {
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        _items.removeWhere((item) => item.id == cartItemId);
+      }
+      notifyListeners();
+    }
+    
   }
 
   void clear() {

@@ -44,10 +44,28 @@ class Products with ChangeNotifier {
 
   List<Product> get favoritesItems {
     return _items.where((product) => product.isFavorite).toList();
-  }  
+  }
+
+  void updateProduct(String id, Product product) {
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    _items[prodIndex] = product;
+    notifyListeners();
+  }
+
+  void deleteProduct(String id) {
+    _items.removeWhere((prod) => prod.id == id);
+    notifyListeners();
+  }
 
   void addProduct(Product product) {
-    _items.add(product);
+    final newProduct = Product(
+      id: DateTime.now().toString(),
+      description: product.description,
+      imageUrl: product.imageUrl,
+      price: product.price,
+      title: product.title,
+    );
+    _items.add(newProduct);
     notifyListeners();
   }
 }

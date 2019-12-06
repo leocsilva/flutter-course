@@ -5,14 +5,15 @@ import 'package:shop/screens/edit_product_screen.dart';
 import 'package:shop/widgets/app_drawer.dart';
 import 'package:shop/widgets/user_product_item.dart';
 
-
 class UserProductScreen extends StatelessWidget {
-
   static const routeName = '/user-product';
+
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<Products>(context).fetchAndSetProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     Products productsProvider = Provider.of<Products>(context);
 
     return Scaffold(
@@ -20,17 +21,24 @@ class UserProductScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Your products'),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.add), onPressed: (){
-            Navigator.of(context).pushNamed(EditProductScreen.routeName);
-          },)
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).pushNamed(EditProductScreen.routeName);
+            },
+          )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: ListView.builder(
-          itemCount: productsProvider.items.length,
-          itemBuilder: (ctx, index) => UserProductItem(productsProvider.items[index]),
+      body: RefreshIndicator(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ListView.builder(
+            itemCount: productsProvider.items.length,
+            itemBuilder: (ctx, index) =>
+                UserProductItem(productsProvider.items[index]),
+          ),
         ),
+        onRefresh: () => _refreshProducts(context),
       ),
     );
   }

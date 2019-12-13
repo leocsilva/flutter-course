@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/providers/products.dart';
-import 'package:shop/screens/edit_product_screen.dart';
-import 'package:shop/widgets/app_drawer.dart';
-import 'package:shop/widgets/user_product_item.dart';
 
-class UserProductScreen extends StatelessWidget {
-  static const routeName = '/user-product';
+import '../providers/products.dart';
+import '../widgets/user_product_item.dart';
+import '../widgets/app_drawer.dart';
+import './edit_product_screen.dart';
+
+class UserProductsScreen extends StatelessWidget {
+  static const routeName = '/user-products';
 
   Future<void> _refreshProducts(BuildContext context) async {
     await Provider.of<Products>(context).fetchAndSetProducts();
@@ -14,31 +15,38 @@ class UserProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Products productsProvider = Provider.of<Products>(context);
-
+    final productsData = Provider.of<Products>(context);
     return Scaffold(
-      drawer: AppDrawer(),
       appBar: AppBar(
-        title: const Text('Your products'),
+        title: const Text('Your Products'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               Navigator.of(context).pushNamed(EditProductScreen.routeName);
             },
-          )
+          ),
         ],
       ),
+      drawer: AppDrawer(),
       body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           child: ListView.builder(
-            itemCount: productsProvider.items.length,
-            itemBuilder: (ctx, index) =>
-                UserProductItem(productsProvider.items[index]),
+            itemCount: productsData.items.length,
+            itemBuilder: (_, i) => Column(
+                  children: [
+                    UserProductItem(
+                      productsData.items[i].id,
+                      productsData.items[i].title,
+                      productsData.items[i].imageUrl,
+                    ),
+                    Divider(),
+                  ],
+                ),
           ),
         ),
-        onRefresh: () => _refreshProducts(context),
       ),
     );
   }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop/providers/cart.dart';
-import 'package:shop/providers/products.dart';
-import 'package:shop/screens/cart_screen.dart';
-import 'package:shop/widgets/app_drawer.dart';
-import 'package:shop/widgets/badge.dart';
-import 'package:shop/widgets/producs_grid.dart';
+
+import '../widgets/app_drawer.dart';
+import '../widgets/products_grid.dart';
+import '../widgets/badge.dart';
+import '../providers/cart.dart';
+import './cart_screen.dart';
+import '../providers/products.dart';
 
 enum FilterOptions {
   Favorites,
@@ -18,19 +19,25 @@ class ProductsOverviewScreen extends StatefulWidget {
 }
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
-  bool _showOnlyFavorites = false;
-
+  var _showOnlyFavorites = false;
   var _isInit = true;
   var _isLoading = false;
 
   @override
+  void initState() {
+    // Provider.of<Products>(context).fetchAndSetProducts(); // WON'T WORK!
+    // Future.delayed(Duration.zero).then((_) {
+    //   Provider.of<Products>(context).fetchAndSetProducts();
+    // });
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
-    super.didChangeDependencies();
     if (_isInit) {
       setState(() {
         _isLoading = true;
       });
-
       Provider.of<Products>(context).fetchAndSetProducts().then((_) {
         setState(() {
           _isLoading = false;
@@ -38,54 +45,61 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       });
     }
     _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
       appBar: AppBar(
         title: Text('MyShop'),
         actions: <Widget>[
+          PopupMenuButton(
+            onSelected: (FilterOptions selectedValue) {
+              setState(() {
+                if (selectedValue == FilterOptions.Favorites) {
+                  _showOnlyFavorites = true;
+                } else {
+                  _showOnlyFavorites = false;
+                }
+              });
+            },
+            icon: Icon(
+              Icons.more_vert,
+            ),
+            itemBuilder: (_) => [
+                  PopupMenuItem(
+                    child: Text('Only Favorites'),
+                    value: FilterOptions.Favorites,
+                  ),
+                  PopupMenuItem(
+                    child: Text('Show All'),
+                    value: FilterOptions.All,
+                  ),
+                ],
+          ),
           Consumer<Cart>(
             builder: (_, cart, ch) => Badge(
-              value: cart.itemCount.toString(),
-              child: ch,
-            ),
+                  child: ch,
+                  value: cart.itemCount.toString(),
+                ),
             child: IconButton(
-              icon: Icon(Icons.shopping_cart),
+              icon: Icon(
+                Icons.shopping_cart,
+              ),
               onPressed: () {
                 Navigator.of(context).pushNamed(CartScreen.routeName);
               },
             ),
           ),
-          PopupMenuButton(
-            onSelected: (FilterOptions selected) {
-              switch (selected) {
-                case FilterOptions.Favorites:
-                  setState(() {
-                    _showOnlyFavorites = true;
-                  });
-                  break;
-                case FilterOptions.All:
-                  setState(() {
-                    _showOnlyFavorites = false;
-                  });
-                  break;
-                default:
-              }
-            },
-            icon: Icon(Icons.more_vert),
-            itemBuilder: (ctx) => [
-              PopupMenuItem(
-                  child: Text('Only Favorites'),
-                  value: FilterOptions.Favorites),
-              PopupMenuItem(child: Text('Show all'), value: FilterOptions.All),
-            ],
-          )
         ],
       ),
-      body: _isLoading ? Center(child: CircularProgressIndicator(),) : ProductsGrid(_showOnlyFavorites),
+      drawer: AppDrawer(),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductsGrid(_showOnlyFavorites),
     );
   }
 }
